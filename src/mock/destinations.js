@@ -32,4 +32,10 @@ export const destinations = [
       }
     ]
   },
+  {
+    id: 'cfe416cq-10xa-ye10-8077-2fs9a01edcae',
+    description: 'Fusce tristique felis at fermentum pharetra.',
+    name: 'Ankara',
+    pictures: []
+  },
 ];

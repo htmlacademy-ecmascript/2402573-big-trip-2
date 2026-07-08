@@ -1,4 +1,4 @@
-import {destinations as destinationsMocks} from './mock/destinations.js';
+import {destinations as destinationsMocks} from '../mock/destinations.js';
 
 export default class DestinationsModel {
   destinations = destinationsMocks;

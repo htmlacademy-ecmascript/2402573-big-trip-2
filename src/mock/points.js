@@ -41,7 +41,7 @@ export const points = [
     basePrice: 2000,
     dateFrom: '2024-05-12T21:53:56.845Z',
     dateTo: '2024-05-22T12:25:14.375Z',
-    destination: 'cfe416cq-10xa-ye10-8077-2fs9a01edcad',
+    destination: 'cfe416cq-10xa-ye10-8077-2fs9a01edcae',
     isFavorite: false,
     offers: [
       'b4c3e4e6-9053-42ce-b747-e281314cvju0',

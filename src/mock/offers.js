@@ -17,6 +17,11 @@ export const offers = [
         title: 'Add carrying the luggage',
         price: 20
       },
+      {
+        id: 'b4c3e4e6-9053-42ce-b747-e281314baa77',
+        title: 'Add smth',
+        price: 10
+      },
     ]
   },
   {
