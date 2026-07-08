@@ -2,7 +2,7 @@ import EditFormView from '../view/edit-point.js';
 import ListView from '../view/list.js';
 import PointView from '../view/point.js';
 import SortView from '../view/sort.js';
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 
 export default class BoardPresenter {
   listComponent = new ListView();
@@ -30,13 +30,13 @@ export default class BoardPresenter {
       checkedOffers: firstCheckedOffers,
       allDestinations: allDestinations,
       allOffers: firstAllOffers
-    }), this.listComponent.getElement());
+    }), this.listComponent.element);
 
     points.forEach((point) => {
       const destination = this.destinationsModel.getById(point.destination);
       const checkedOffers = this.offersModel.getByIds(point.offers);
       const newPoint = new PointView({ point, destination, checkedOffers });
-      render(newPoint, this.listComponent.getElement());
+      render(newPoint, this.listComponent.element);
     });
   }
 }
