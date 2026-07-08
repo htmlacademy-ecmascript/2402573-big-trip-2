@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {POINT_TYPES} from '../const.js';
 import {humanizeFullDate} from '../utils.js';
 
@@ -118,28 +118,45 @@ function createEditFormTemplate(point, destination, checkedOffers, allDestinatio
             </li>`;
 }
 
-export default class EditFormView {
-  constructor({ point, destination, checkedOffers, allDestinations, allOffers }) {
-    this.point = point;
-    this.destination = destination;
-    this.checkedOffers = checkedOffers;
-    this.allDestinations = allDestinations;
-    this.allOffers = allOffers;
+export default class EditFormView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #checkedOffers = null;
+  #allOffers = null;
+  #allDestinations = null;
+  #onRollupClick = null;
+  #onFormSubmit = null;
+
+  constructor({ point, destination, checkedOffers, allDestinations, allOffers, onRollupClick, onFormSubmit }) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#checkedOffers = checkedOffers;
+    this.#allDestinations = allDestinations;
+    this.#allOffers = allOffers;
+    this.#onRollupClick = onRollupClick;
+    this.#onFormSubmit = onFormSubmit;
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
+
+    this.element
+      .querySelector('.event--edit')
+      .addEventListener('submit', this.#formSubmitHandler);
   }
 
-  getTemplate() {
-    return createEditFormTemplate(this.point, this.destination, this.checkedOffers, this.allDestinations, this.allOffers);
-  }
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onRollupClick();
+  };
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEditFormTemplate(this.#point, this.#destination, this.#checkedOffers, this.#allDestinations, this.#allOffers);
   }
 }
