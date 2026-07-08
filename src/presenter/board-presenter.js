@@ -2,41 +2,65 @@ import EditFormView from '../view/edit-point.js';
 import ListView from '../view/list.js';
 import PointView from '../view/point.js';
 import SortView from '../view/sort.js';
-import {render} from '../framework/render.js';
+import {render, replace} from '../framework/render.js';
+import {points} from "../mock/points";
 
 export default class BoardPresenter {
-  listComponent = new ListView();
+  #listComponent = new ListView();
+  #container = null;
+  #pointsModel = null;
+  #destinationsModel = null;
+  #offersModel = null;
+  #points = [];
 
   constructor({ container, pointsModel, destinationsModel, offersModel }) {
-    this.container = container;
-    this.pointsModel = pointsModel;
-    this.destinationsModel = destinationsModel;
-    this.offersModel = offersModel;
+    this.#container = container;
+    this.#pointsModel = pointsModel;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
   }
 
   init() {
-    const points = this.pointsModel.getPoints();
-    const firstPoint = points[0];
-    const firstDestination = this.destinationsModel.getById(firstPoint.destination);
-    const firstCheckedOffers = this.offersModel.getByIds(firstPoint.offers);
-    const firstAllOffers = this.offersModel.getByType(firstPoint.type);
-    const allDestinations = this.destinationsModel.getDestinations();
+    this.#points = this.#pointsModel.points;
+    this.#renderList();
+  }
 
-    render(new SortView(), this.container);
-    render(this.listComponent, this.container);
-    render(new EditFormView({
-      point: firstPoint,
-      destination: firstDestination,
-      checkedOffers: firstCheckedOffers,
-      allDestinations: allDestinations,
-      allOffers: firstAllOffers
-    }), this.listComponent.element);
+  #renderPoint(point) {
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        replaceFormToPoint();
+      }
+    };
 
-    points.forEach((point) => {
-      const destination = this.destinationsModel.getById(point.destination);
-      const checkedOffers = this.offersModel.getByIds(point.offers);
-      const newPoint = new PointView({ point, destination, checkedOffers });
-      render(newPoint, this.listComponent.element);
+    const destination = this.#destinationsModel.getById(point.destination);
+    const checkedOffers = this.#offersModel.getByIds(point.offers);
+    const newPoint = new PointView({ point, destination, checkedOffers, onRollupClick: replacePointToForm });
+
+    const allOffers = this.#offersModel.getByType(point.type);
+    const allDestinations = this.#destinationsModel.destinations;
+    const editPoint = new EditFormView({
+      point, destination, allOffers, allDestinations, checkedOffers,
+      onRollupClick: replaceFormToPoint,
+      onFormSubmit: replaceFormToPoint
     });
+
+    function replacePointToForm() {
+      replace(editPoint, newPoint);
+      document.addEventListener('keydown', escKeyDownHandler);
+    }
+
+    function replaceFormToPoint() {
+      replace(newPoint, editPoint);
+      document.removeEventListener('keydown', escKeyDownHandler);
+    }
+    render(newPoint, this.#listComponent.element);
+  }
+
+  #renderList() {
+    render(new SortView(), this.#container);
+    render(this.#listComponent, this.#container);
+
+    this.#points.forEach((point) => this.#renderPoint(point));
   }
 }
