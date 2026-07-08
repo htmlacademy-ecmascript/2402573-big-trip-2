@@ -1,18 +1,18 @@
 import {offers as offersMocks} from '../mock/offers.js';
 export default class OffersModel {
-  offers = offersMocks;
+  #offers = offersMocks;
 
-  getOffers() {
-    return this.offers;
+  get offers() {
+    return this.#offers;
   }
 
   getByType(type) {
-    const group = this.offers.find((offer) => offer.type === type);
+    const group = this.#offers.find((offer) => offer.type === type);
     return group?.offers ?? [];
   }
 
   getById(id) {
-    const flattenOffers = this.offers.flatMap((item) => item.offers);
+    const flattenOffers = this.#offers.flatMap((item) => item.offers);
     return flattenOffers.find((offer) => offer.id === id);
   }
 
