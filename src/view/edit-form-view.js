@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {POINT_TYPES} from '../const.js';
-import {humanizeFullDate} from '../utils.js';
+import { humanizeFullDate } from '../utils/date.js';
 
 function createTypesTemplate(currentType, id) {
   return POINT_TYPES.map((type) => {
@@ -40,7 +40,6 @@ function createOffersTemplate(allOffers, checkedIds) {
     })
     .join('');
 }
-
 
 function createEditFormTemplate(point, destination, checkedOffers, allDestinations, allOffers) {
   const { basePrice, dateFrom, dateTo, type, id } = point;

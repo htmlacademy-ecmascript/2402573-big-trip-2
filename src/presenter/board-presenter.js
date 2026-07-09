@@ -1,7 +1,7 @@
-import EditFormView from '../view/edit-point.js';
-import ListView from '../view/list.js';
-import PointView from '../view/point.js';
-import SortView from '../view/sort.js';
+import EditFormView from '../view/edit-form-view.js';
+import ListView from '../view/list-view.js';
+import PointView from '../view/point-view.js';
+import SortView from '../view/sort-view.js';
 import {render, replace} from '../framework/render.js';
 import EmptyListView from '../view/empty-list-view.js';
 import { FilterTypes } from '../const.js';
