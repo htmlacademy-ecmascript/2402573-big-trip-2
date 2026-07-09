@@ -15,3 +15,18 @@ export const DATE_FORMAT = 'MMM DD';
 export const TIME_FORMAT = 'HH:mm';
 
 export const DATE_AND_TIME_FORMAT = 'DD/MM/YY HH:mm';
+
+export const FilterTypes = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
+
+export const EmptyListMessages = {
+  everything: 'Click New Event to create your first point',
+  past: 'There are no past events now',
+  present: 'There are no present events now',
+  future: 'There are no future events now',
+};
+
