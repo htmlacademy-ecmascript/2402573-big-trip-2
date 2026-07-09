@@ -3,7 +3,8 @@ import ListView from '../view/list.js';
 import PointView from '../view/point.js';
 import SortView from '../view/sort.js';
 import {render, replace} from '../framework/render.js';
-import {points} from "../mock/points";
+import EmptyListView from '../view/empty-list-view.js';
+import { FilterTypes } from '../const.js';
 
 export default class BoardPresenter {
   #listComponent = new ListView();
@@ -58,6 +59,11 @@ export default class BoardPresenter {
   }
 
   #renderList() {
+    if (this.#points.length === 0) {
+      const emptyList = new EmptyListView({ filterType: FilterTypes.EVERYTHING });
+      render(emptyList, this.#container);
+      return;
+    }
     render(new SortView(), this.#container);
     render(this.#listComponent, this.#container);
 
