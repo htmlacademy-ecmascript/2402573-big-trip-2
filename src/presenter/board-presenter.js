@@ -42,6 +42,7 @@ export default class BoardPresenter {
     const pointPresenter = new PointPresenter({
       container: this.#listComponent.element,
       onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange,
     });
     pointPresenter.init(point, destination, checkedOffers, allOffers, allDestinations);
     this.#pointPresenters.set(point.id, pointPresenter);
@@ -59,16 +60,20 @@ export default class BoardPresenter {
     this.#points.forEach((point) => this.#renderPoint(point));
   }
 
-  #handlePointChange = (updatedPoint) => {
-    this.#points = updateItem(this.#points, updatedPoint);
-    const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination, checkedOffers, allOffers, allDestinations);
-  };
-
   #clearPointsList() {
     this.#pointPresenters.forEach((presenter) => {
       presenter.destroy();
     });
     this.#pointPresenters.clear();
   }
+
+  #handleModeChange = () => {
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handlePointChange = (updatedPoint) => {
+    this.#points = updateItem(this.#points, updatedPoint);
+    const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination, checkedOffers, allOffers, allDestinations);
+  };
 }
