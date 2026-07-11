@@ -1,10 +1,10 @@
-import EditFormView from '../view/edit-form-view.js';
-import ListView from '../view/list-view.js';
-import PointView from '../view/point-view.js';
-import SortView from '../view/sort-view.js';
-import {render, replace} from '../framework/render.js';
-import EmptyListView from '../view/empty-list-view.js';
 import { FilterTypes } from '../const.js';
+import { render } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
+import ListView from '../view/list-view.js';
+import SortView from '../view/sort-view.js';
+import EmptyListView from '../view/empty-list-view.js';
+import PointPresenter from './point-presenter.js';
 
 export default class BoardPresenter {
   #listComponent = new ListView();
@@ -13,6 +13,7 @@ export default class BoardPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #points = [];
+  #pointPresenters = new Map();
 
   constructor({ container, pointsModel, destinationsModel, offersModel }) {
     this.#container = container;
@@ -26,36 +27,24 @@ export default class BoardPresenter {
     this.#renderList();
   }
 
-  #renderPoint(point) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToPoint();
-      }
+  #getPointData(point) {
+    return {
+      destination: this.#destinationsModel.getById(point.destination),
+      checkedOffers: this.#offersModel.getByIds(point.offers),
+      allOffers: this.#offersModel.getByType(point.type),
+      allDestinations: this.#destinationsModel.destinations,
     };
+  }
 
-    const destination = this.#destinationsModel.getById(point.destination);
-    const checkedOffers = this.#offersModel.getByIds(point.offers);
-    const newPoint = new PointView({ point, destination, checkedOffers, onRollupClick: replacePointToForm });
+  #renderPoint(point) {
+    const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(point);
 
-    const allOffers = this.#offersModel.getByType(point.type);
-    const allDestinations = this.#destinationsModel.destinations;
-    const editPoint = new EditFormView({
-      point, destination, allOffers, allDestinations, checkedOffers,
-      onRollupClick: replaceFormToPoint,
-      onFormSubmit: replaceFormToPoint
+    const pointPresenter = new PointPresenter({
+      container: this.#listComponent.element,
+      onDataChange: this.#handlePointChange,
     });
-
-    function replacePointToForm() {
-      replace(editPoint, newPoint);
-      document.addEventListener('keydown', escKeyDownHandler);
-    }
-
-    function replaceFormToPoint() {
-      replace(newPoint, editPoint);
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }
-    render(newPoint, this.#listComponent.element);
+    pointPresenter.init(point, destination, checkedOffers, allOffers, allDestinations);
+    this.#pointPresenters.set(point.id, pointPresenter);
   }
 
   #renderList() {
@@ -68,5 +57,18 @@ export default class BoardPresenter {
     render(this.#listComponent, this.#container);
 
     this.#points.forEach((point) => this.#renderPoint(point));
+  }
+
+  #handlePointChange = (updatedPoint) => {
+    this.#points = updateItem(this.#points, updatedPoint);
+    const { destination, checkedOffers, allOffers, allDestinations } = this.#getPointData(updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, destination, checkedOffers, allOffers, allDestinations);
+  };
+
+  #clearPointsList() {
+    this.#pointPresenters.forEach((presenter) => {
+      presenter.destroy();
+    });
+    this.#pointPresenters.clear();
   }
 }
