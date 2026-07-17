@@ -23,6 +23,12 @@ export const FilterTypes = {
   PAST: 'past',
 };
 
+export const SortTypes = {
+  DEFAULT: 'day',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
 export const EmptyListMessages = {
   everything: 'Click New Event to create your first point',
   past: 'There are no past events now',

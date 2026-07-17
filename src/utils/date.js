@@ -15,7 +15,7 @@ export const humanizeFullDate = (date) => date ? dayjs(date).format(DATE_AND_TIM
 export const countDuration = (dateTo, dateFrom) => {
   const diff = dayjs.duration(dayjs(dateTo).diff(dayjs(dateFrom)));
 
-  const days = padHelper(diff.days());
+  const days = padHelper(Math.floor(diff.asDays()));
   const hours = padHelper(diff.hours());
   const minutes = padHelper(diff.minutes());
 
