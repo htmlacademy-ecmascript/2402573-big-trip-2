@@ -1,6 +1,6 @@
-import AbstractView from '../framework/view/abstract-view.js';
 import {POINT_TYPES} from '../const.js';
 import { humanizeFullDate } from '../utils/date.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 function createTypesTemplate(currentType, id) {
   return POINT_TYPES.map((type) => {
@@ -29,7 +29,7 @@ function createOffersTemplate(allOffers, checkedIds) {
       const isCheckedOffer = checkedIds.includes(offer.id) ? 'checked' : '';
       return `
          <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${isCheckedOffer}>
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${isCheckedOffer}>
            <label class="event__offer-label" for="event-offer-${offer.id}">
            <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
@@ -41,8 +41,10 @@ function createOffersTemplate(allOffers, checkedIds) {
     .join('');
 }
 
-function createEditFormTemplate(point, destination, checkedOffers, allDestinations, allOffers) {
+function createEditFormTemplate(point, destination, allDestinations, allOffers) {
   const { basePrice, dateFrom, dateTo, type, id } = point;
+  const offersByType = allOffers.find((offer) => offer.type === type);
+  const typeOffers = offersByType?.offers ?? [];
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -99,7 +101,7 @@ function createEditFormTemplate(point, destination, checkedOffers, allDestinatio
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
-                     ${createOffersTemplate(allOffers, point.offers)}
+                     ${createOffersTemplate(typeOffers, point.offers)}
                     </div>
                   </section>
 
@@ -117,25 +119,28 @@ function createEditFormTemplate(point, destination, checkedOffers, allDestinatio
             </li>`;
 }
 
-export default class EditFormView extends AbstractView {
-  #point = null;
-  #destination = null;
-  #checkedOffers = null;
+export default class EditFormView extends AbstractStatefulView {
   #allOffers = null;
   #allDestinations = null;
   #onRollupClick = null;
   #onFormSubmit = null;
 
-  constructor({ point, destination, checkedOffers, allDestinations, allOffers, onRollupClick, onFormSubmit }) {
+  constructor({ point, destination, allDestinations, allOffers, onRollupClick, onFormSubmit }) {
     super();
-    this.#point = point;
-    this.#destination = destination;
-    this.#checkedOffers = checkedOffers;
+    this._setState({ point, destination });
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
     this.#onRollupClick = onRollupClick;
     this.#onFormSubmit = onFormSubmit;
 
+    this._restoreHandlers();
+  }
+
+  get template() {
+    return createEditFormTemplate(this._state.point, this._state.destination, this.#allDestinations, this.#allOffers);
+  }
+
+  _restoreHandlers() {
     this.element
       .querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupClickHandler);
@@ -143,6 +148,28 @@ export default class EditFormView extends AbstractView {
     this.element
       .querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
+
+    this.element
+      .querySelector('.event__type-group')
+      .addEventListener('change', this.#typeChangeHandler);
+
+    this.element
+      .querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
+    const offersWrapper = this.element.querySelector('.event__available-offers');
+    if (offersWrapper) {
+      offersWrapper.addEventListener('change', this.#offersChangeHandler);
+    }
+  }
+
+  reset(point, destination) {
+    this.updateElement(
+      {
+        point,
+        destination
+      }
+    );
   }
 
   #rollupClickHandler = (evt) => {
@@ -152,10 +179,43 @@ export default class EditFormView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onFormSubmit(this.#point);
+    this.#onFormSubmit(this._state.point);
   };
 
-  get template() {
-    return createEditFormTemplate(this.#point, this.#destination, this.#checkedOffers, this.#allDestinations, this.#allOffers);
-  }
+  #typeChangeHandler = (evt) => {
+    this.updateElement({
+      point: {...this._state.point, type: evt.target.value, offers: [] },
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    const foundDestination = this.#allDestinations.find((destination) => destination.name === evt.target.value);
+    if (!foundDestination) {
+      return;
+    }
+    this.updateElement({
+      destination: foundDestination
+    });
+  };
+
+  #offersChangeHandler = (evt) => {
+    if (!evt.target.dataset.offerId) {
+      return;
+    }
+
+    const checkedOffer = evt.target.dataset.offerId;
+    const isChecked = evt.target.checked;
+    let checkedOffers = [...this._state.point.offers];
+
+    if (isChecked) {
+      checkedOffers.push(checkedOffer);
+    } else {
+      checkedOffers = checkedOffers.filter((id) => id !== checkedOffer);
+    }
+
+    this.updateElement({
+      point: {...this._state.point, offers: checkedOffers}
+    });
+  };
+
 }

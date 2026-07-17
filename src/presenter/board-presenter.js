@@ -34,7 +34,7 @@ export default class BoardPresenter {
     return {
       destination: this.#destinationsModel.getById(point.destination),
       checkedOffers: this.#offersModel.getByIds(point.offers),
-      allOffers: this.#offersModel.getByType(point.type),
+      allOffers: this.#offersModel.offers,
       allDestinations: this.#destinationsModel.destinations,
     };
   }
