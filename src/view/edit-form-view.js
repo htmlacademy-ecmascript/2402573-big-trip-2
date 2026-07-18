@@ -1,6 +1,8 @@
 import {POINT_TYPES} from '../const.js';
 import { humanizeFullDate } from '../utils/date.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypesTemplate(currentType, id) {
   return POINT_TYPES.map((type) => {
@@ -124,6 +126,8 @@ export default class EditFormView extends AbstractStatefulView {
   #allDestinations = null;
   #onRollupClick = null;
   #onFormSubmit = null;
+  #datePickerFrom = null;
+  #datePickerTo = null;
 
   constructor({ point, destination, allDestinations, allOffers, onRollupClick, onFormSubmit }) {
     super();
@@ -138,6 +142,36 @@ export default class EditFormView extends AbstractStatefulView {
 
   get template() {
     return createEditFormTemplate(this._state.point, this._state.destination, this.#allDestinations, this.#allOffers);
+  }
+
+  #setDatePickers() {
+    const [dateFrom, dateTo] = this.element.querySelectorAll('.event__input--time');
+    const dateConfig = {
+      dateFormat: 'd/m/y H:i',
+      enableTime: true,
+      locale: {firstDayOfWeek: 1},
+      'time_24hr': true
+    };
+
+    this.#datePickerFrom = flatpickr(
+      dateFrom,
+      {
+        ...dateConfig,
+        defaultDate: this._state.point.dateFrom,
+        onClose: this.#OnCloseDateFrom,
+        maxDate: this._state.point.dateTo
+      }
+    );
+
+    this.#datePickerTo = flatpickr(
+      dateTo,
+      {
+        ...dateConfig,
+        defaultDate: this._state.point.dateTo,
+        onClose: this.#OnCloseDateTo,
+        minDate: this._state.point.dateFrom
+      }
+    );
   }
 
   _restoreHandlers() {
@@ -161,6 +195,8 @@ export default class EditFormView extends AbstractStatefulView {
     if (offersWrapper) {
       offersWrapper.addEventListener('change', this.#offersChangeHandler);
     }
+
+    this.#setDatePickers();
   }
 
   reset(point, destination) {
@@ -171,6 +207,21 @@ export default class EditFormView extends AbstractStatefulView {
       }
     );
   }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datePickerFrom) {
+      this.#datePickerFrom.destroy();
+      this.#datePickerFrom = null;
+    }
+
+    if (this.#datePickerTo) {
+      this.#datePickerTo.destroy();
+      this.#datePickerTo = null;
+    }
+  }
+
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
@@ -218,4 +269,13 @@ export default class EditFormView extends AbstractStatefulView {
     });
   };
 
+  #OnCloseDateFrom = ([date]) => {
+    this._setState({point: {...this._state.point, dateFrom: date}});
+    this.#datePickerTo.set('minDate', date);
+  };
+
+  #OnCloseDateTo = ([date]) => {
+    this._setState({point: {...this._state.point, dateTo: date}});
+    this.#datePickerFrom.set('maxDate', date);
+  };
 }
