@@ -17,15 +17,15 @@ export default class NewPointPresenter {
   #formComponent = null;
   #offersModel = null;
   #destinationsModel = null;
-  #handleDataChange = null;
-  #handleFormClose = null;
+  #dataChangeHandler = null;
+  #formCloseHandler = null;
 
   constructor({ container, offersModel, destinationsModel, onDataChange, onFormClose }) {
     this.#container = container;
-    this.#handleDataChange = onDataChange;
+    this.#dataChangeHandler = onDataChange;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
-    this.#handleFormClose = onFormClose;
+    this.#formCloseHandler = onFormClose;
   }
 
   init() {
@@ -33,7 +33,7 @@ export default class NewPointPresenter {
       point: EMPTY_POINT,
       allOffers: this.#offersModel.offers,
       allDestinations: this.#destinationsModel.destinations,
-      onFormSubmit: this.#onFormSubmit,
+      onFormSubmit: this.#formSubmitHandler,
       onCancelClick: this.#cancelClickHandler,
       isEditMode: false,
     });
@@ -48,7 +48,7 @@ export default class NewPointPresenter {
     }
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     remove(this.#formComponent);
-    this.#handleFormClose();
+    this.#formCloseHandler();
   }
 
   setSaving() {
@@ -73,8 +73,8 @@ export default class NewPointPresenter {
     }
   };
 
-  #onFormSubmit = (point) => {
-    this.#handleDataChange(
+  #formSubmitHandler = (point) => {
+    this.#dataChangeHandler(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
       point

@@ -10,7 +10,7 @@ import TripInfoPresenter from './presenter/trip-info-presenter.js';
 const AUTHORIZATION = 'Basic gg6htysww';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
-const filterContainer = document.querySelector('.trip-controls__filters');
+const filterContainerElement = document.querySelector('.trip-controls__filters');
 const mainElement = document.querySelector('.trip-events');
 const tripMainElement = document.querySelector('.trip-main');
 
@@ -22,7 +22,7 @@ const offersModel = new OffersModel({ tripApiService });
 const filtersModel = new FiltersModel();
 
 const filterPresenter = new FilterPresenter({
-  filterContainer,
+  filterContainerElement,
   filtersModel,
   pointsModel
 });
@@ -56,5 +56,7 @@ Promise.all([
   .then(() => pointsModel.init())
   .catch(() => {
     boardPresenter.showLoadError();
+  })
+  .finally(() => {
+    boardPresenter.enableNewPointButton();
   });
-

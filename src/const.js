@@ -10,18 +10,16 @@ const POINT_TYPES = [
   'drive',
 ];
 
-const DATE_FORMAT = 'MMM DD';
-
-const TIME_FORMAT = 'HH:mm';
-
-const DATE_AND_TIME_FORMAT = 'DD/MM/YY HH:mm';
-
-const TRIP_INFO_DATE_FORMAT = 'D MMM';
-
 const FLATPICKR_DATE_FORMAT = 'd/m/y H:i';
 
 const FIRST_DAY_OF_WEEK = 1;
 
+const DateFormat = {
+  DATE: 'MMM DD',
+  TIME: 'HH:mm',
+  FULL: 'DD/MM/YY HH:mm',
+  TRIP_INFO: 'D MMM',
+};
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -54,6 +52,4 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export { POINT_TYPES, DATE_FORMAT, DATE_AND_TIME_FORMAT, TIME_FORMAT, TRIP_INFO_DATE_FORMAT, FLATPICKR_DATE_FORMAT, FIRST_DAY_OF_WEEK,
-  FilterType, SortType, UserAction, UpdateType, TimeLimit
-};
+export { POINT_TYPES, FLATPICKR_DATE_FORMAT, FIRST_DAY_OF_WEEK, FilterType, SortType, UserAction, UpdateType, TimeLimit, DateFormat };

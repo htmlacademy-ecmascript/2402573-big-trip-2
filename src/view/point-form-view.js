@@ -152,10 +152,10 @@ function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
 export default class PointFormView extends AbstractStatefulView {
   #allOffers = null;
   #allDestinations = null;
-  #onRollupClick = null;
-  #onFormSubmit = null;
-  #onDeleteClick = null;
-  #onCancelClick = null;
+  #rollupButtonClickHandler = null;
+  #formSubmitHandler = null;
+  #deleteButtonClickHandler = null;
+  #cancelButtonClickHandler = null;
   #datePickerFrom = null;
   #datePickerTo = null;
   #isEditMode = true;
@@ -166,10 +166,10 @@ export default class PointFormView extends AbstractStatefulView {
     this.#allDestinations = allDestinations;
     this.#allOffers = allOffers;
     this.#isEditMode = isEditMode;
-    this.#onRollupClick = onRollupClick;
-    this.#onFormSubmit = onFormSubmit;
-    this.#onDeleteClick = onDeleteClick;
-    this.#onCancelClick = onCancelClick;
+    this.#rollupButtonClickHandler = onRollupClick;
+    this.#formSubmitHandler = onFormSubmit;
+    this.#deleteButtonClickHandler = onDeleteClick;
+    this.#cancelButtonClickHandler = onCancelClick;
 
     this._restoreHandlers();
   }
@@ -187,7 +187,7 @@ export default class PointFormView extends AbstractStatefulView {
 
     this.element
       .querySelector('.event--edit')
-      .addEventListener('submit', this.#formSubmitHandler);
+      .addEventListener('submit', this.#pointSubmitHandler);
 
     this.element
       .querySelector('.event__type-group')
@@ -255,7 +255,7 @@ export default class PointFormView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.point.dateFrom,
-        onClose: this.#onCloseDateFrom,
+        onClose: this.#dateFromCloseHandler,
         maxDate: this._state.point.dateTo
       }
     );
@@ -265,7 +265,7 @@ export default class PointFormView extends AbstractStatefulView {
       {
         ...dateConfig,
         defaultDate: this._state.point.dateTo,
-        onClose: this.#onCloseDateTo,
+        onClose: this.#dateToCloseHandler,
         minDate: this._state.point.dateFrom
       }
     );
@@ -273,16 +273,16 @@ export default class PointFormView extends AbstractStatefulView {
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onRollupClick();
+    this.#rollupButtonClickHandler();
   };
 
-  #formSubmitHandler = (evt) => {
+  #pointSubmitHandler = (evt) => {
     evt.preventDefault();
     if (!this._state.point.destination || !this._state.point.dateFrom || !this._state.point.dateTo) {
       return;
     }
 
-    this.#onFormSubmit(this._state.point);
+    this.#formSubmitHandler(this._state.point);
   };
 
   #typeChangeHandler = (evt) => {
@@ -330,23 +330,23 @@ export default class PointFormView extends AbstractStatefulView {
     });
   };
 
-  #onCloseDateFrom = ([date]) => {
+  #dateFromCloseHandler = ([date]) => {
     this._setState({point: {...this._state.point, dateFrom: date}});
     this.#datePickerTo.set('minDate', date);
   };
 
-  #onCloseDateTo = ([date]) => {
+  #dateToCloseHandler = ([date]) => {
     this._setState({point: {...this._state.point, dateTo: date}});
     this.#datePickerFrom.set('maxDate', date);
   };
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onDeleteClick();
+    this.#deleteButtonClickHandler();
   };
 
   #cancelClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onCancelClick();
+    this.#cancelButtonClickHandler();
   };
 }

@@ -16,7 +16,7 @@ export default class TripInfoPresenter {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
 
-    this.#pointsModel.addObserver(this.#handleModelChange);
+    this.#pointsModel.addObserver(this.#modelChangeHandler);
   }
 
   init() {
@@ -72,7 +72,7 @@ export default class TripInfoPresenter {
     return `${humanizeTripInfoDate(firstPoint.dateFrom)} — ${humanizeTripInfoDate(lastPoint.dateTo)}`;
   }
 
-  #handleModelChange = () => {
+  #modelChangeHandler = () => {
     this.#renderComponent();
   };
 }

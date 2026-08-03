@@ -17,14 +17,14 @@ export default class PointPresenter {
   #checkedOffers = [];
   #allOffers = [];
   #allDestinations = [];
-  #handleDataChange = null;
-  #handleModeChange = null;
+  #dataChangeHandler = null;
+  #modeChangeHandler = null;
   #mode = Mode.DEFAULT;
 
   constructor({ container, onDataChange, onModeChange }) {
     this.#container = container;
-    this.#handleDataChange = onDataChange;
-    this.#handleModeChange = onModeChange;
+    this.#dataChangeHandler = onDataChange;
+    this.#modeChangeHandler = onModeChange;
   }
 
   init(point, destination, checkedOffers, allOffers, allDestinations) {
@@ -42,15 +42,15 @@ export default class PointPresenter {
         destination,
         checkedOffers,
         onRollupClick: this.#replacePointToForm,
-        onFavoriteClick: this.#onFavoriteClick,
+        onFavoriteClick: this.#favoriteClickHandler,
       });
 
     this.#editPointComponent = new PointFormView({
       point, destination, allOffers, allDestinations, checkedOffers,
       isEditMode: true,
       onRollupClick: this.#replaceFormToPoint,
-      onFormSubmit: this.#onFormSubmit,
-      onDeleteClick: this.#onDeleteClick
+      onFormSubmit: this.#formSubmitHandler,
+      onDeleteClick: this.#deleteClickHandler
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -113,7 +113,7 @@ export default class PointPresenter {
   #replacePointToForm = () => {
     replace(this.#editPointComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#handleModeChange();
+    this.#modeChangeHandler();
     this.#mode = Mode.EDITING;
   };
 
@@ -131,24 +131,24 @@ export default class PointPresenter {
     }
   };
 
-  #onFavoriteClick = () => {
-    this.#handleDataChange(
+  #favoriteClickHandler = () => {
+    this.#dataChangeHandler(
       UserAction.UPDATE_POINT,
       UpdateType.PATCH,
       {...this.#point, isFavorite: !this.#point.isFavorite}
     );
   };
 
-  #onFormSubmit = (point) => {
-    this.#handleDataChange(
+  #formSubmitHandler = (point) => {
+    this.#dataChangeHandler(
       UserAction.UPDATE_POINT,
       UpdateType.MINOR,
       point
     );
   };
 
-  #onDeleteClick = () => {
-    this.#handleDataChange(
+  #deleteClickHandler = () => {
+    this.#dataChangeHandler(
       UserAction.DELETE_POINT,
       UpdateType.MINOR,
       this.#point

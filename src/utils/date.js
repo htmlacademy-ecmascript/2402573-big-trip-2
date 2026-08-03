@@ -1,18 +1,18 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { DATE_AND_TIME_FORMAT, DATE_FORMAT, TIME_FORMAT, TRIP_INFO_DATE_FORMAT } from '../const.js';
+import { DateFormat } from '../const.js';
 
 dayjs.extend(duration);
 
 const padNumber = (num) => String(num).padStart(2, '0');
 
-const humanizeDate = (date) => date ? dayjs(date).format(DATE_FORMAT).toUpperCase() : '';
+const humanizeDate = (date) => date ? dayjs(date).format(DateFormat.DATE).toUpperCase() : '';
 
-const humanizeTime = (time) => time ? dayjs(time).format(TIME_FORMAT) : '';
+const humanizeTime = (time) => time ? dayjs(time).format(DateFormat.TIME) : '';
 
-const humanizeFullDate = (date) => date ? dayjs(date).format(DATE_AND_TIME_FORMAT) : '';
+const humanizeFullDate = (date) => date ? dayjs(date).format(DateFormat.FULL) : '';
 
-const humanizeTripInfoDate = (date) => dayjs(date).format(TRIP_INFO_DATE_FORMAT);
+const humanizeTripInfoDate = (date) => dayjs(date).format(DateFormat.TRIP_INFO);
 
 const countDuration = (dateTo, dateFrom) => {
   const diff = dayjs.duration(dayjs(dateTo).diff(dayjs(dateFrom)));
