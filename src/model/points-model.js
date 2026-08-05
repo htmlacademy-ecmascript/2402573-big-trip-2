@@ -15,10 +15,6 @@ export default class PointsModel extends Observable {
     return [...this.#points];
   }
 
-  set points(points) {
-    this.#points = [...points];
-  }
-
   async init() {
     try {
       const points = await this.#tripApiService.points;
@@ -29,10 +25,6 @@ export default class PointsModel extends Observable {
     }
 
     this._notify(UpdateType.INIT);
-  }
-
-  getById(id) {
-    return this.#points.find((point) => point.id === id);
   }
 
   async addPoint(updateType, pointToAdd) {

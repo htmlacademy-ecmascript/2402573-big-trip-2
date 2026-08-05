@@ -14,14 +14,6 @@ export default class Observable {
   }
 
   /**
-   * Метод, позволяющий отписаться от события
-   * @param {observerCallback} observer Функция, которую больше не нужно вызывать при наступлении события
-   */
-  removeObserver(observer) {
-    this.#observers.delete(observer);
-  }
-
-  /**
    * Метод для оповещения подписчиков о наступлении события
    * @param {*} event Тип события
    * @param {*} payload Дополнительная информация

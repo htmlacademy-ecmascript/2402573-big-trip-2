@@ -5,6 +5,85 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
+function createHeaderTemplate(state, allDestinations, isEditMode) {
+  const { point, destination, isSaving, isDeleting } = state;
+  const { basePrice, dateFrom, dateTo, type, id } = point;
+  const disabledAttribute = (isSaving || isDeleting) ? 'disabled' : '';
+
+  return `<header class="event__header">
+    <div class="event__type-wrapper">
+      <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
+        <span class="visually-hidden">Choose event type</span>
+        <img class="event__type-icon" width="17" height="17" src="img/icons/${he.encode(type)}.png" alt="Event type icon">
+      </label>
+      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox" ${disabledAttribute}>
+
+      <div class="event__type-list">
+        <fieldset class="event__type-group">
+          <legend class="visually-hidden">Event type</legend>
+          ${createTypesTemplate(type, id, disabledAttribute)}
+        </fieldset>
+      </div>
+    </div>
+
+    <div class="event__field-group  event__field-group--destination">
+      <label class="event__label  event__type-output" for="event-destination-${id}">
+        ${he.encode(type)}
+      </label>
+      <input
+      class="event__input  event__input--destination"
+      id="event-destination-${id}"
+      type="text" name="event-destination"
+      value="${he.encode(destination?.name ?? '')}"
+      list="destination-list-${id}"
+      autocomplete="off"
+      ${disabledAttribute}
+      >
+      <datalist id="destination-list-${id}">
+        ${createDestinationsTemplate(allDestinations)}
+      </datalist>
+    </div>
+
+    <div class="event__field-group  event__field-group--time">
+      <label class="visually-hidden" for="event-start-time-${id}">From</label>
+      <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time"
+      value="${humanizeFullDate(dateFrom)}"
+      ${disabledAttribute}
+      >
+      &mdash;
+      <label class="visually-hidden" for="event-end-time-${id}">To</label>
+      <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time"
+      value="${humanizeFullDate(dateTo)}"
+      ${disabledAttribute}
+      >
+    </div>
+
+    <div class="event__field-group  event__field-group--price">
+      <label class="event__label" for="event-price-${id}">
+        <span class="visually-hidden">Price</span>
+        &euro;
+      </label>
+      <input
+      class="event__input  event__input--price"
+      id="event-price-${id}"
+      type="number"
+      min="1"
+      name="event-price"
+      value="${basePrice}"
+      ${disabledAttribute}
+      >
+    </div>
+
+    <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
+      ${isEditMode ?
+    `<button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
+    '<button class="event__reset-btn" type="reset">Cancel</button>'}
+      ${isEditMode ? `<button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+    </button>` : ''}
+  </header>`;
+}
+
 function createTypesTemplate(currentType, id, disabledAttribute) {
   return POINT_TYPES.map((type) => {
     const isCheckedType = currentType === type ? 'checked' : '';
@@ -19,11 +98,34 @@ function createTypesTemplate(currentType, id, disabledAttribute) {
   }).join('');
 }
 
+function createDestinationSectionTemplate(destination) {
+  if (!destination || (!destination.description && !(destination.pictures && destination.pictures.length))) {
+    return '';
+  }
+  return `<section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${he.encode(destination.description)}</p>
+    ${createPhotosTemplate(destination.pictures)}
+  </section>`;
+}
+
 function createDestinationsTemplate(allDestinations) {
   return allDestinations
     .map((destination) =>
       `<option value="${he.encode(destination.name)}"></option>`)
     .join('');
+}
+
+function createOffersSectionTemplate(typeOffers, checkedOfferIds, disabledAttribute) {
+  if (typeOffers.length === 0) {
+    return '';
+  }
+  return `<section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+     ${createOffersTemplate(typeOffers, checkedOfferIds, disabledAttribute)}
+    </div>
+  </section>`;
 }
 
 function createOffersTemplate(allOffers, checkedIds, disabledAttribute) {
@@ -32,8 +134,8 @@ function createOffersTemplate(allOffers, checkedIds, disabledAttribute) {
       const isCheckedOffer = checkedIds.includes(offer.id) ? 'checked' : '';
       return `
          <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${isCheckedOffer} ${disabledAttribute}>
-           <label class="event__offer-label" for="event-offer-${offer.id}">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${he.encode(offer.id)}" type="checkbox" name="event-offer-${he.encode(offer.id)}" data-offer-id="${he.encode(offer.id)}" ${isCheckedOffer} ${disabledAttribute}>
+           <label class="event__offer-label" for="event-offer-${he.encode(offer.id)}">
            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
@@ -44,109 +146,33 @@ function createOffersTemplate(allOffers, checkedIds, disabledAttribute) {
     .join('');
 }
 
+function createPhotosTemplate(pictures) {
+  if (!pictures || pictures.length === 0) {
+    return '';
+  }
+  return `<div class="event__photos-container">
+    <div class="event__photos-tape">
+      ${pictures.map((picture) => `<img class="event__photo" src="${he.encode(picture.src)}" alt="${he.encode(picture.description)}">`).join('')}
+    </div>
+  </div>`;
+}
+
 function createEditFormTemplate(state, allDestinations, allOffers, isEditMode) {
   const { point, destination, isSaving, isDeleting } = state;
-  const { basePrice, dateFrom, dateTo, type, id } = point;
+  const { type } = point;
   const offersByType = allOffers.find((offer) => offer.type === type);
   const typeOffers = offersByType?.offers ?? [];
   const disabledAttribute = (isSaving || isDeleting) ? 'disabled' : '';
 
   return `<li class="trip-events__item">
-              <form class="event event--edit" action="#" method="post">
-                <header class="event__header">
-                  <div class="event__type-wrapper">
-                    <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
-                      <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
-                    </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox" ${disabledAttribute}>
-
-                    <div class="event__type-list">
-                      <fieldset class="event__type-group">
-                        <legend class="visually-hidden">Event type</legend>
-                        ${createTypesTemplate(type, id, disabledAttribute)}
-                      </fieldset>
-                    </div>
-                  </div>
-
-                  <div class="event__field-group  event__field-group--destination">
-                    <label class="event__label  event__type-output" for="event-destination-${id}">
-                      ${type}
-                    </label>
-                    <input
-                    class="event__input  event__input--destination"
-                    id="event-destination-${id}"
-                    type="text" name="event-destination"
-                    value="${he.encode(destination?.name ?? '')}"
-                    list="destination-list-${id}"
-                    autocomplete="off"
-                    ${disabledAttribute}
-                    >
-                    <datalist id="destination-list-${id}">
-                      ${createDestinationsTemplate(allDestinations)}
-                    </datalist>
-                  </div>
-
-                  <div class="event__field-group  event__field-group--time">
-                    <label class="visually-hidden" for="event-start-time-${id}">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time"
-                    value="${humanizeFullDate(dateFrom)}"
-                    ${disabledAttribute}
-                    >
-                    &mdash;
-                    <label class="visually-hidden" for="event-end-time-${id}">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time"
-                    value="${humanizeFullDate(dateTo)}"
-                    ${disabledAttribute}
-                    >
-                  </div>
-
-                  <div class="event__field-group  event__field-group--price">
-                    <label class="event__label" for="event-price-${id}">
-                      <span class="visually-hidden">Price</span>
-                      &euro;
-                    </label>
-                    <input
-                    class="event__input  event__input--price"
-                    id="event-price-${id}"
-                    type="number"
-                    min="1"
-                    name="event-price"
-                    value="${basePrice}"
-                    ${disabledAttribute}
-                    >
-                  </div>
-
-                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
-                    ${isEditMode ?
-    `<button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>` :
-    '<button class="event__reset-btn" type="reset">Cancel</button>'}
-                    ${isEditMode ? `<button class="event__rollup-btn" type="button" >
-                    <span class="visually-hidden">Open event</span>
-                  </button>` : ''}
-                </header>
-                <section class="event__details">
-                  ${typeOffers.length ? `<section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-                    <div class="event__available-offers">
-                     ${createOffersTemplate(typeOffers, point.offers, disabledAttribute)}
-                    </div>
-                  </section>` : ''}
-
-                  ${destination && (destination.description || (destination.pictures && destination.pictures.length)) ? `<section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${he.encode(destination.description)}</p>
-                    ${destination.pictures.length > 0 ? `<div class="event__photos-container">
-    <div class="event__photos-tape">
-  ${destination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${he.encode(picture.description)}">`).join('')}
-  </div>` : ''}
-
-                     </div>
-                  </section>` : ''}
-                </section>
-              </form>
-            </li>`;
+    <form class="event event--edit" action="#" method="post">
+      ${createHeaderTemplate(state, allDestinations, isEditMode)}
+      <section class="event__details">
+        ${createOffersSectionTemplate(typeOffers, point.offers, disabledAttribute)}
+        ${createDestinationSectionTemplate(destination)}
+      </section>
+    </form>
+  </li>`;
 }
 
 export default class PointFormView extends AbstractStatefulView {
@@ -213,16 +239,6 @@ export default class PointFormView extends AbstractStatefulView {
     this.#setDatePickers();
   }
 
-  reset(point, destination) {
-    this.updateElement(
-      {
-        point,
-        destination,
-        ...this.#setDefaultFlags()
-      }
-    );
-  }
-
   removeElement() {
     super.removeElement();
 
@@ -235,6 +251,16 @@ export default class PointFormView extends AbstractStatefulView {
       this.#datePickerTo.destroy();
       this.#datePickerTo = null;
     }
+  }
+
+  reset(point, destination) {
+    this.updateElement(
+      {
+        point,
+        destination,
+        ...this.#setDefaultFlags()
+      }
+    );
   }
 
   #setDefaultFlags() {
@@ -294,6 +320,7 @@ export default class PointFormView extends AbstractStatefulView {
   #destinationChangeHandler = (evt) => {
     const foundDestination = this.#allDestinations.find((destination) => destination.name === evt.target.value);
     if (!foundDestination) {
+      evt.target.value = this._state.destination?.name ?? '';
       return;
     }
     this.updateElement({

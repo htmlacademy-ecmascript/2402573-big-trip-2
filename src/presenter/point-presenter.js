@@ -14,9 +14,6 @@ export default class PointPresenter {
   #editPointComponent = null;
   #point = null;
   #destination = null;
-  #checkedOffers = [];
-  #allOffers = [];
-  #allDestinations = [];
   #dataChangeHandler = null;
   #modeChangeHandler = null;
   #mode = Mode.DEFAULT;
@@ -30,9 +27,6 @@ export default class PointPresenter {
   init(point, destination, checkedOffers, allOffers, allDestinations) {
     this.#point = point;
     this.#destination = destination;
-    this.#checkedOffers = checkedOffers;
-    this.#allOffers = allOffers;
-    this.#allDestinations = allDestinations;
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#editPointComponent;
@@ -77,6 +71,9 @@ export default class PointPresenter {
   }
 
   destroy() {
+    if (this.#mode === Mode.EDITING) {
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
     remove(this.#pointComponent);
     remove(this.#editPointComponent);
   }

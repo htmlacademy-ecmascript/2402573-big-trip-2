@@ -6,16 +6,16 @@ function createPointTemplate(point, destination, checkedOffers) {
   const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="${dateFrom}">${humanizeDate(dateFrom)}</time>
+                <time class="event__date" datetime="${he.encode(dateFrom)}">${humanizeDate(dateFrom)}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="img/icons/${he.encode(type)}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${type} ${he.encode(destination?.name ?? '')}</h3>
+                <h3 class="event__title">${he.encode(type)} ${he.encode(destination?.name ?? '')}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${dateFrom}">${humanizeTime(dateFrom)}</time>
+                    <time class="event__start-time" datetime="${he.encode(dateFrom)}">${humanizeTime(dateFrom)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${dateTo}">${humanizeTime(dateTo)}</time>
+                    <time class="event__end-time" datetime="${he.encode(dateTo)}">${humanizeTime(dateTo)}</time>
                   </p>
                   <p class="event__duration">${countDuration(dateTo, dateFrom)}</p>
                 </div>

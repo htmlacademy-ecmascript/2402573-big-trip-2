@@ -1,4 +1,5 @@
 import { render, replace, remove, RenderPosition } from '../framework/render.js';
+import { MAX_ROUTE_CITIES } from '../const.js';
 import { humanizeTripInfoDate } from '../utils/date.js';
 import { sortByDay } from '../utils/sort.js';
 import TripInfoView from '../view/trip-info-view.js';
@@ -60,7 +61,7 @@ export default class TripInfoPresenter {
 
   #calculateRoute(points) {
     const cityNames = points.map((point) => this.#destinationsModel.getById(point.destination).name);
-    if (cityNames.length <= 3) {
+    if (cityNames.length <= MAX_ROUTE_CITIES) {
       return cityNames.join(' — ');
     }
     return `${cityNames[0]} ... ${cityNames[cityNames.length - 1]}`;

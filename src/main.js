@@ -7,7 +7,7 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import TripApiService from './trip-api-service.js';
 import TripInfoPresenter from './presenter/trip-info-presenter.js';
 
-const AUTHORIZATION = 'Basic gg6htysww';
+const AUTHORIZATION = `Basic ${Math.random().toString(36).slice(2)}`;
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const filterContainerElement = document.querySelector('.trip-controls__filters');

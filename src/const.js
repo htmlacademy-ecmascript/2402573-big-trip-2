@@ -10,6 +10,8 @@ const POINT_TYPES = [
   'drive',
 ];
 
+const MAX_ROUTE_CITIES = 3;
+
 const FLATPICKR_DATE_FORMAT = 'd/m/y H:i';
 
 const FIRST_DAY_OF_WEEK = 1;
@@ -52,4 +54,4 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export { POINT_TYPES, FLATPICKR_DATE_FORMAT, FIRST_DAY_OF_WEEK, FilterType, SortType, UserAction, UpdateType, TimeLimit, DateFormat };
+export { POINT_TYPES, MAX_ROUTE_CITIES, FLATPICKR_DATE_FORMAT, FIRST_DAY_OF_WEEK, FilterType, SortType, UserAction, UpdateType, TimeLimit, DateFormat };
