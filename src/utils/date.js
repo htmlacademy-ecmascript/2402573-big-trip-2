@@ -4,7 +4,7 @@ import { DateFormat } from '../const.js';
 
 dayjs.extend(duration);
 
-const padNumber = (num) => String(num).padStart(2, '0');
+const padNumber = (value) => String(value).padStart(2, '0');
 
 const humanizeDate = (date) => date ? dayjs(date).format(DateFormat.DATE).toUpperCase() : '';
 
